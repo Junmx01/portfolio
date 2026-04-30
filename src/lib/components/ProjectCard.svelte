@@ -1,12 +1,16 @@
-<script>
-	export let project;
+<script lang="ts">
+	import type { Project } from '$lib/types';
+	import { locale } from '$lib/i18n';
+	import { messages } from '$lib/i18n/copy';
+
+	let { project }: { project: Project } = $props();
+	const i18n = $derived(messages[$locale].card);
 </script>
 
-<article
-	class="overflow-hidden border-2 border-stone-500 rounded-lg bg-white p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
->
-	<!-- Project Image -->
-	<div class="aspect-[4/3] overflow-hidden bg-gray-100">
+<article class="surface-panel project-card relative p-0">
+	<a href="/portfolio/{project.slug}" class="project-card-overlay" aria-label={project.title}></a>
+
+	<div class="aspect-[4/3] overflow-hidden bg-highlight">
 		<img
 			src="/content/images/projects/{project.thumbnail}"
 			alt={project.title}
@@ -15,49 +19,42 @@
 		/>
 	</div>
 
-	<!-- Project Details -->
-	<div class="p-6">
+	<div class="project-card-body p-6">
 		<div class="mb-3">
-			<h3 class="mb-2 text-xl font-bold lowercase md:text-2xl">
-				<a href="/portfolio/{project.slug}" class="hover:text-primary transition-colors">
-					{project.title}
-				</a>
+			<h3 class="project-card-title page-title mb-2 text-2xl lowercase">
+				{project.title}
 			</h3>
-			<p class="text-sm text-gray-600 md:text-base">{project.description}</p>
+			<p class="project-card-description muted-copy text-sm md:text-base">{project.description}</p>
+			{#if project.result}
+				<p class="mt-2 text-sm font-medium text-accent">→ {project.result}</p>
+			{/if}
 		</div>
 
-		<!-- Tags -->
 		{#if project.tags && project.tags.length > 0}
-			<div class="mb-4 flex flex-wrap gap-2">
+			<div class="project-card-tags mb-4 flex flex-wrap gap-2">
 				{#each project.tags as tag}
-					<span
-						class="font-body bg-gray-100 px-2 py-1 text-xs uppercase tracking-wide text-gray-700"
-					>
+					<span class="soft-tag px-3 py-1 text-xs uppercase tracking-wide">
 						{tag}
 					</span>
 				{/each}
 			</div>
 		{/if}
 
-		<!-- Action Links -->
-		<div class="flex items-center justify-between">
-			<a
-				href="/portfolio/{project.slug}"
-				class="hover:text-primary text-sm font-bold uppercase tracking-wide text-gray-900 transition-colors"
-			>
-				view case study →
-			</a>
+		<div class="mt-auto flex items-center justify-between">
+			<span class="eyebrow-link text-sm font-bold transition-colors hover:text-primary-dark">
+				{i18n.viewCaseStudy}
+			</span>
 
-			<div class="flex items-center space-x-3">
+			<div class="relative z-10 flex items-center space-x-3">
 				{#if project.link}
 					<a
 						href={project.link}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="hover:text-primary text-xs uppercase tracking-wide text-gray-600 transition-colors"
-						aria-label="View live project"
+						class="muted-copy text-xs uppercase tracking-wide transition-colors hover:text-primary-dark"
+						aria-label={i18n.liveAria}
 					>
-						live
+						{i18n.liveLabel}
 					</a>
 				{/if}
 				{#if project.github}
@@ -65,10 +62,10 @@
 						href={project.github}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="hover:text-primary text-xs uppercase tracking-wide text-gray-600 transition-colors"
-						aria-label="View project code"
+						class="muted-copy text-xs uppercase tracking-wide transition-colors hover:text-primary-dark"
+						aria-label={i18n.codeAria}
 					>
-						code
+						{i18n.codeLabel}
 					</a>
 				{/if}
 			</div>

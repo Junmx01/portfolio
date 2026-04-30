@@ -1,12 +1,12 @@
 import { Resend } from 'resend';
+import { env } from '$env/dynamic/private';
 import { getSiteConfig } from '$lib/utils/content';
-import { RESEND_API_KEY } from '$env/static/private';
 
 const toEmail = getSiteConfig().email;
 const fromEmail = getSiteConfig().resendEmail;
 
 export const POST = async ({ request }) => {
-	const resend = new Resend(RESEND_API_KEY);
+	const resend = new Resend(env.RESEND_API_KEY);
 	const { name, email, message } = await request.json();
 
 	const { data, error } = await resend.emails.send({

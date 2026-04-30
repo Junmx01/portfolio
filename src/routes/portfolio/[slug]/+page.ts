@@ -1,11 +1,12 @@
 import { error } from '@sveltejs/kit';
+import { loadProjectContent } from '$lib/content/localized';
+import { defaultLocale } from '$lib/i18n';
 
 export async function load({ params }) {
-	console.log('params', params);
 	try {
-		const project = await import(`../../../content/projects/${params.slug}.md`);
-		console.log('project', project);
+		const project = await loadProjectContent(params.slug, defaultLocale);
 		return {
+			slug: params.slug,
 			content: project.default,
 			meta: project.metadata
 		};

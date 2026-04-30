@@ -1,113 +1,109 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import type { Component } from 'svelte';
+	import { loadAboutContent } from '$lib/content/localized';
+	import { interpolate, locale } from '$lib/i18n';
+	import { messages } from '$lib/i18n/copy';
 	import { getSiteConfig } from '$lib/utils/content';
 
 	const config = getSiteConfig();
 	const { data } = $props();
+	const i18n = $derived(messages[$locale]);
+	let localizedContent = $state<Component | null>(null);
+	const RenderedContent = $derived((localizedContent ?? data.content) as Component);
+
+	$effect(() => {
+		const activeLocale = $locale;
+		let cancelled = false;
+
+		void loadAboutContent(activeLocale)
+			.then((about) => {
+				if (!cancelled) {
+					localizedContent = about.default as Component;
+				}
+			})
+			.catch(() => {});
+
+		return () => {
+			cancelled = true;
+		};
+	});
 </script>
 
 <svelte:head>
-	<title>About - {config.name}</title>
-	<meta name="description" content="Learn more about {config.name}" />
+	<title>{i18n.about.metaTitle} - {config.name}</title>
+	<meta
+		name="description"
+		content={interpolate(i18n.about.metaDescription, { name: config.name })}
+	/>
 </svelte:head>
 
-<!-- Page Header -->
-<section class="border-b-2 border-black py-12 md:py-20 lg:py-24">
+<section class="section-divider py-12 md:py-20 lg:py-24">
 	<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-		<div class="max-w-3xl">
-			<h1 class="mb-4 text-2xl font-bold lowercase md:text-3xl lg:text-4xl">about page</h1>
-			<p class="text-base leading-relaxed md:text-lg">
-				for learning about {config.name.split(' ')[0]}
+		<div class="surface-panel max-w-3xl px-6 py-8 md:px-8">
+			<p class="eyebrow-link mb-3 text-xs">{i18n.about.heroEyebrow}</p>
+			<h1 class="page-title mb-4 text-4xl lowercase md:text-5xl">{i18n.about.title}</h1>
+			<p class="lead-copy text-base leading-relaxed md:text-lg">
+				{interpolate(i18n.about.intro, { name: config.name })}
 			</p>
 		</div>
 	</div>
 </section>
 
-<!-- About Content -->
 <section class="py-12 md:py-20 lg:py-24">
 	<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 		<div class="grid grid-cols-1 gap-12 lg:grid-cols-3">
-			<!-- Profile Image Placeholder -->
 			<div class="lg:col-span-1">
-				<div
-					class="flex aspect-square items-center justify-center border-2 border-black bg-stone-100"
-				>
-					<p class="text-center text-sm text-stone-800 md:text-base">
-						profile image<br />coming soon
-					</p>
+				<div class="surface-panel p-8">
+					<p class="eyebrow-link mb-5 text-xs">{i18n.about.positionEyebrow}</p>
+					<ul class="space-y-3">
+						{#each i18n.about.positionKeywords as keyword}
+							<li class="flex items-start gap-2">
+								<span class="mt-1 text-primary">—</span>
+								<span class="page-title text-base lowercase leading-snug">{keyword}</span>
+							</li>
+						{/each}
+					</ul>
 				</div>
 			</div>
 
-			<!-- About Content -->
 			<div class="lg:col-span-2">
-				<div class="prose prose-stone prose-lg max-w-none !text-stone-800">
-					<data.content />
+				<div class="surface-panel px-6 py-8 md:px-8">
+					<div class="prose prose-lg max-w-none">
+						<RenderedContent />
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </section>
 
-<!-- Skills Section -->
-<section class="bg-stone-50 py-12 md:py-20 lg:py-24">
-	<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-		<h2 class="mb-8 text-center text-2xl font-bold lowercase md:text-3xl lg:text-4xl">
-			what i work with
-		</h2>
+<section class="soft-band py-12 md:py-20 lg:py-24">
+	<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+		<p class="eyebrow-link mb-3 text-center text-xs">{i18n.about.toolkitEyebrow}</p>
+		<h2 class="page-title mb-10 text-center text-4xl lowercase md:text-5xl">{i18n.about.toolkitTitle}</h2>
 
-		<div class="grid grid-cols-2 gap-6 md:grid-cols-4">
-			<div class="text-center">
-				<h3 class="mb-2 text-sm font-bold lowercase">design</h3>
-				<ul class="space-y-1 text-sm text-stone-800 md:text-base">
-					<li>figma</li>
-					<li>sketch</li>
-					<li>adobe cc</li>
-				</ul>
-			</div>
-
-			<div class="text-center">
-				<h3 class="mb-2 text-sm font-bold lowercase">frontend</h3>
-				<ul class="space-y-1 text-sm text-stone-800 md:text-base">
-					<li>html/css</li>
-					<li>javascript</li>
-					<li>svelte</li>
-					<li>react</li>
-				</ul>
-			</div>
-
-			<div class="text-center">
-				<h3 class="mb-2 text-sm font-bold lowercase">backend</h3>
-				<ul class="space-y-1 text-sm text-stone-800 md:text-base">
-					<li>node.js</li>
-					<li>python</li>
-					<li>databases</li>
-				</ul>
-			</div>
-
-			<div class="text-center">
-				<h3 class="mb-2 text-sm font-bold lowercase">tools</h3>
-				<ul class="space-y-1 text-sm text-stone-800 md:text-base">
-					<li>git</li>
-					<li>vscode</li>
-					<li>terminal</li>
-				</ul>
-			</div>
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+			{#each i18n.about.toolGroups as group}
+				<div class="surface-panel p-6 text-center">
+					<h3 class="mb-3 text-sm font-bold uppercase tracking-[0.16em] text-accent">{group.title}</h3>
+					<ul class="muted-copy space-y-1 text-sm md:text-base">
+						{#each group.items as item}
+							<li>{item}</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
 		</div>
 	</div>
 </section>
 
-<!-- Contact CTA -->
 <section class="py-12 md:py-20 lg:py-24">
 	<div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-		<h2 class="mb-4 text-2xl font-bold lowercase md:text-3xl lg:text-4xl">let's work together</h2>
-		<p class="mb-8 text-base leading-relaxed text-stone-800 md:text-lg">
-			ready to bring your ideas to life? let's have a conversation.
+		<p class="eyebrow-link mb-3 text-xs">{i18n.about.collaborationEyebrow}</p>
+		<h2 class="page-title mb-4 text-4xl lowercase md:text-5xl">{i18n.about.collaborationTitle}</h2>
+		<p class="muted-copy mb-8 text-base leading-relaxed md:text-lg">
+			{i18n.about.collaborationText}
 		</p>
-		<a
-			href="/contact"
-			class="bg-primary hover:bg-primary-dark inline-flex items-center px-6 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 transition-colors duration-200"
-		>
-			get in touch
-		</a>
+		<a href="/contact" class="btn-primary">{i18n.about.collaborationCta}</a>
 	</div>
 </section>

@@ -1,8 +1,10 @@
 import { error } from '@sveltejs/kit';
+import { loadAboutContent } from '$lib/content/localized';
+import { defaultLocale } from '$lib/i18n';
 
 export const load = async () => {
 	try {
-		const about = await import(`../../content/about.md`);
+		const about = await loadAboutContent(defaultLocale);
 		return {
 			content: about.default,
 			meta: about.metadata

@@ -6,9 +6,10 @@ export interface Project {
 	tags: string[];
 	featured: boolean;
 	thumbnail: string;
-	images: string[];
+	images?: string[];
 	link?: string;
 	github?: string;
-	content: unknown;
+	content?: unknown;
 	published: boolean;
+	result?: string;
 }

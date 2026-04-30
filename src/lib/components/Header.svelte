@@ -1,62 +1,96 @@
 <script>
 	import { page } from '$app/state';
+	import { locale, languages, setLocale } from '$lib/i18n';
+	import { messages } from '$lib/i18n/copy';
 	import { getSiteConfig } from '$lib/utils/content';
 
 	const config = getSiteConfig();
 	let isMenuOpen = $state(false);
+	const i18n = $derived(messages[$locale].header);
+
+	let hidden = $state(false);
+	let lastScrollY = 0;
+
+	$effect(() => {
+		function onScroll() {
+			const currentScrollY = window.scrollY;
+			if (currentScrollY < 80) {
+				hidden = false;
+			} else if (currentScrollY > lastScrollY) {
+				hidden = true;
+				isMenuOpen = false;
+			} else {
+				hidden = false;
+			}
+			lastScrollY = currentScrollY;
+		}
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	});
 </script>
 
-<header class="bg-primary sticky top-0 z-10 border-b-2 border-black">
+<header
+	class="site-header sticky top-0 z-10"
+	style:transform={hidden ? 'translateY(-100%)' : 'translateY(0)'}
+	style:transition="transform 0.3s ease"
+>
 	<nav class="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
 		<div class="flex items-center justify-between">
 			<!-- Logo/Name -->
 			<a
 				href="/"
-				class="rounded-md px-2 py-1 text-xl font-bold lowercase text-gray-900 transition-colors hover:bg-black hover:text-white"
+				class="brand-mark"
 			>
 				{config.name}
 			</a>
 
 			<!-- Navigation Links -->
-			<div class="hidden items-center space-x-8 md:flex">
+			<div class="hidden items-center gap-4 md:flex">
+				<div class="lang-switch" aria-label={i18n.languageLabel}>
+					{#each languages as language}
+						<button
+							type="button"
+							class="lang-option"
+							class:lang-option-active={$locale === language.code}
+							aria-label={language.label}
+							aria-pressed={$locale === language.code}
+							onclick={() => setLocale(language.code)}
+						>
+							{language.shortLabel}
+						</button>
+					{/each}
+				</div>
 				<a
 					href="/portfolio"
-					class="nav-link rounded-md px-2 py-1 text-lg transition-colors duration-200 hover:bg-black hover:text-white"
-					class:text-white={page.url.pathname.startsWith('/portfolio')}
-					class:bg-black={page.url.pathname.startsWith('/portfolio')}
+					class="nav-chip text-base"
+					class:nav-chip-active={page.url.pathname.startsWith('/portfolio')}
 				>
-					portfolio
+					{i18n.portfolio}
 				</a>
 				<a
 					href="/about"
-					class="nav-link rounded-md px-2 py-1 text-lg transition-colors duration-200 hover:bg-black hover:text-white"
-					class:text-white={page.url.pathname === '/about'}
-					class:bg-black={page.url.pathname === '/about'}
+					class="nav-chip text-base"
+					class:nav-chip-active={page.url.pathname === '/about'}
 				>
-					about
+					{i18n.about}
 				</a>
 				<a
 					href="/contact"
-					class="nav-link rounded-md px-2 py-1 text-lg transition-colors duration-200 hover:bg-black hover:text-white"
-					class:text-white={page.url.pathname === '/contact'}
-					class:bg-black={page.url.pathname === '/contact'}
+					class="nav-chip text-base"
+					class:nav-chip-active={page.url.pathname === '/contact'}
 				>
-					contact
+					{i18n.contact}
 				</a>
-				<a
-					href="/resume/resume.pdf"
-					download="resume.pdf"
-					class="border-text-primary text-text-primary hover:bg-text-primary inline-flex items-center border-2 px-6 py-3 text-sm font-bold uppercase tracking-wide transition-colors duration-200 hover:text-white"
-				>
-					view my resume!
-				</a>
+				<a href="/resume/resume.pdf" download="resume.pdf" class="btn-secondary">{i18n.resume}</a>
 			</div>
 
 			<!-- Mobile Menu Button -->
 			<button
-				class="p-2 md:hidden"
+				class="mobile-toggle p-2 md:hidden"
 				id="mobile-menu-button"
-				aria-label="Toggle mobile menu"
+				aria-label={i18n.mobileMenu}
+				aria-expanded={isMenuOpen}
 				onclick={() => {
 					isMenuOpen = !isMenuOpen;
 				}}
@@ -74,49 +108,54 @@
 
 		<!-- Mobile Menu -->
 		<div
-			class="mt-4 hidden border-t-2 border-black pb-4 pt-4 md:hidden"
+			class="mt-4 hidden border-t border-line pb-4 pt-4 md:hidden"
 			id="mobile-menu"
 			class:hidden={!isMenuOpen}
 		>
 			<div class="flex flex-col space-y-4">
+				<div class="lang-switch w-fit" aria-label={i18n.languageLabel}>
+					{#each languages as language}
+						<button
+							type="button"
+							class="lang-option"
+							class:lang-option-active={$locale === language.code}
+							aria-label={language.label}
+							aria-pressed={$locale === language.code}
+							onclick={() => setLocale(language.code)}
+						>
+							{language.shortLabel}
+						</button>
+					{/each}
+				</div>
 				<div>
 					<a
 						href="/portfolio"
-						class="nav-link rounded-md px-2 py-1 text-lg transition-colors duration-200 hover:bg-black hover:text-white"
-						class:text-white={page.url.pathname.startsWith('/portfolio')}
-						class:bg-black={page.url.pathname.startsWith('/portfolio')}
+						class="nav-chip text-base"
+						class:nav-chip-active={page.url.pathname.startsWith('/portfolio')}
 					>
-						portfolio
+						{i18n.portfolio}
 					</a>
 				</div>
 				<div>
 					<a
 						href="/about"
-						class="nav-link rounded-md px-2 py-1 text-lg transition-colors duration-200 hover:bg-black hover:text-white"
-						class:text-white={page.url.pathname === '/about'}
-						class:bg-black={page.url.pathname === '/about'}
+						class="nav-chip text-base"
+						class:nav-chip-active={page.url.pathname === '/about'}
 					>
-						about
+						{i18n.about}
 					</a>
 				</div>
 				<div>
 					<a
 						href="/contact"
-						class="nav-link rounded-md px-2 py-1 text-lg transition-colors duration-200 hover:bg-black hover:text-white"
-						class:text-white={page.url.pathname === '/contact'}
-						class:bg-black={page.url.pathname === '/contact'}
+						class="nav-chip text-base"
+						class:nav-chip-active={page.url.pathname === '/contact'}
 					>
-						contact
+						{i18n.contact}
 					</a>
 				</div>
 				<div>
-					<a
-						href="/resume/resume.pdf"
-						download="resume.pdf"
-						class="nav-link rounded-md px-2 py-1 text-lg transition-colors duration-200 hover:bg-black hover:text-white"
-					>
-						view my resume!
-					</a>
+					<a href="/resume/resume.pdf" download="resume.pdf" class="btn-secondary">{i18n.resume}</a>
 				</div>
 			</div>
 		</div>

@@ -1,44 +1,49 @@
 <script lang="ts">
+	import { interpolate, locale } from '$lib/i18n';
+	import { messages } from '$lib/i18n/copy';
 	import { getSiteConfig } from '$lib/utils/content';
 	import ContactForm from '$lib/components/ContactForm.svelte';
 
 	const config = getSiteConfig();
+	const i18n = $derived(messages[$locale]);
 </script>
 
 <svelte:head>
-	<title>Contact - {config.name}</title>
-	<meta name="description" content="Get in touch with {config.name}" />
+	<title>{i18n.contact.metaTitle} - {config.name}</title>
+	<meta
+		name="description"
+		content={interpolate(i18n.contact.metaDescription, { name: config.name })}
+	/>
 </svelte:head>
 
-<!-- Page Header -->
-<section class="border-b-2 border-black py-12 md:py-20 lg:py-24">
+<section class="section-divider py-12 md:py-20 lg:py-24">
 	<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-		<div class="max-w-3xl">
-			<h1 class="mb-4 text-2xl font-bold lowercase md:text-3xl lg:text-4xl">get in touch</h1>
-			<p class="text-base md:text-lg">by saying hello</p>
+		<div class="surface-panel max-w-3xl px-6 py-8 md:px-8">
+			<p class="eyebrow-link mb-3 text-xs">{i18n.contact.heroEyebrow}</p>
+			<h1 class="page-title mb-4 text-4xl lowercase md:text-5xl">{i18n.contact.title}</h1>
+			<p class="lead-copy text-base leading-relaxed md:text-lg">
+				{i18n.contact.intro}
+			</p>
 		</div>
 	</div>
 </section>
 
-<!-- Contact Content -->
 <section class="py-12 md:py-20 lg:py-24">
-	<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-		<div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
-			<!-- Contact Information -->
-			<div>
-				<h2 class="mb-6 text-2xl font-bold lowercase md:text-3xl lg:text-4xl">let's talk</h2>
+	<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+		<div class="grid grid-cols-1 gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+			<div class="surface-panel px-6 py-8 md:px-8">
+				<p class="eyebrow-link mb-3 text-xs">{i18n.contact.panelEyebrow}</p>
+				<h2 class="page-title mb-6 text-4xl lowercase">{i18n.contact.panelTitle}</h2>
 				<div class="space-y-6">
-					<p class="text-base leading-relaxed text-stone-800 md:text-lg">
-						whether you have a project in mind, want to collaborate, or just want to say hello, i'd
-						love to hear from you.
+					<p class="muted-copy text-base leading-relaxed md:text-lg">
+						{i18n.contact.panelText}
 					</p>
 
-					<!-- Contact Methods -->
-					<div class="space-y-4">
+					<div class="space-y-5">
 						<div>
-							<h3 class="mb-2 text-lg font-bold lowercase">email</h3>
-							<p class="text-base leading-relaxed text-stone-800 md:text-lg">
-								<a href="mailto:{config.email}" class="hover:text-primary transition-colors">
+							<h3 class="mb-2 text-lg font-bold lowercase">{i18n.contact.emailLabel}</h3>
+							<p class="muted-copy text-base leading-relaxed md:text-lg">
+								<a href="mailto:{config.email}" class="transition-colors hover:text-accent">
 									{config.email}
 								</a>
 							</p>
@@ -46,20 +51,19 @@
 
 						{#if config.location}
 							<div>
-								<h3 class="mb-2 text-lg font-bold lowercase">location</h3>
-								<p class="text-base leading-relaxed text-stone-800 md:text-lg">{config.location}</p>
+								<h3 class="mb-2 text-lg font-bold lowercase">{i18n.contact.locationLabel}</h3>
+								<p class="muted-copy text-base leading-relaxed md:text-lg">{i18n.site.location}</p>
 							</div>
 						{/if}
 
-						<!-- Social Links -->
 						{#if config.social}
 							<div>
-								<h3 class="mb-2 text-lg font-bold lowercase">social</h3>
-								<div class="flex flex-wrap gap-4">
+								<h3 class="mb-2 text-lg font-bold lowercase">{i18n.contact.socialLabel}</h3>
+								<div class="flex flex-wrap gap-3">
 									{#if config.social.github}
 										<a
 											href="https://github.com/{config.social.github}"
-											class="text-base leading-relaxed text-stone-800 transition-colors hover:text-white md:text-lg"
+											class="soft-tag px-4 py-2 text-sm uppercase tracking-wide"
 											target="_blank"
 											rel="noopener noreferrer"
 										>
@@ -69,7 +73,7 @@
 									{#if config.social.linkedin}
 										<a
 											href="https://linkedin.com/in/{config.social.linkedin}"
-											class="text-base leading-relaxed text-stone-800 transition-colors hover:text-white md:text-lg"
+											class="soft-tag px-4 py-2 text-sm uppercase tracking-wide"
 											target="_blank"
 											rel="noopener noreferrer"
 										>
@@ -79,7 +83,7 @@
 									{#if config.social.twitter}
 										<a
 											href="https://twitter.com/{config.social.twitter}"
-											class="text-base leading-relaxed text-stone-800 transition-colors hover:text-white md:text-lg"
+											class="soft-tag px-4 py-2 text-sm uppercase tracking-wide"
 											target="_blank"
 											rel="noopener noreferrer"
 										>
@@ -89,7 +93,7 @@
 									{#if config.social.instagram}
 										<a
 											href="https://instagram.com/{config.social.instagram}"
-											class="text-base leading-relaxed text-stone-800 transition-colors hover:text-white md:text-lg"
+											class="soft-tag px-4 py-2 text-sm uppercase tracking-wide"
 											target="_blank"
 											rel="noopener noreferrer"
 										>
@@ -101,18 +105,15 @@
 						{/if}
 					</div>
 
-					<!-- Response Time -->
-					<div class="border-2 border-stone-200 bg-stone-50 p-6">
-						<h3 class="mb-2 text-lg font-bold lowercase">response time</h3>
-						<p class="text-sm text-stone-800 md:text-base">
-							i typically respond to emails within 24-48 hours. if you need something urgent,
-							mention it in your message.
+					<div class="rounded-[24px] border border-line bg-[rgba(255,252,248,0.72)] p-6">
+						<h3 class="mb-2 text-lg font-bold lowercase">{i18n.contact.responseTitle}</h3>
+						<p class="muted-copy text-sm md:text-base">
+							{i18n.contact.responseText}
 						</p>
 					</div>
 				</div>
 			</div>
 
-			<!-- Contact Form -->
 			<div>
 				<ContactForm />
 			</div>
@@ -120,29 +121,17 @@
 	</div>
 </section>
 
-<!-- Additional Info -->
-<section class="bg-stone-50 py-12 md:py-20 lg:py-24">
+<section class="soft-band py-12 md:py-20 lg:py-24">
 	<div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-		<h2 class="mb-4 text-2xl font-bold lowercase md:text-3xl lg:text-4xl">
-			open for opportunities
-		</h2>
-		<p class="mb-8 text-base leading-relaxed text-stone-800 md:text-lg">
-			i'm always interested in hearing about new projects, collaborations, and opportunities. don't
-			hesitate to reach out if you think we might be a good fit.
+		<p class="eyebrow-link mb-3 text-xs">{i18n.contact.availabilityEyebrow}</p>
+		<h2 class="page-title mb-4 text-4xl lowercase md:text-5xl">{i18n.contact.availabilityTitle}</h2>
+		<p class="muted-copy mb-8 text-base leading-relaxed md:text-lg">
+			{i18n.contact.availabilityText}
 		</p>
 		<div class="flex flex-wrap justify-center gap-4">
-			<span class="border-2 border-stone-200 bg-white px-4 py-2 text-sm text-stone-800 md:text-base"
-				>freelance projects</span
-			>
-			<span class="border-2 border-stone-200 bg-white px-4 py-2 text-sm text-stone-800 md:text-base"
-				>full-time roles</span
-			>
-			<span class="border-2 border-stone-200 bg-white px-4 py-2 text-sm text-stone-800 md:text-base"
-				>consulting</span
-			>
-			<span class="border-2 border-stone-200 bg-white px-4 py-2 text-sm text-stone-800 md:text-base"
-				>collaborations</span
-			>
+			{#each i18n.contact.availabilityTags as tag}
+				<span class="soft-tag px-4 py-2 text-sm uppercase tracking-wide md:text-base">{tag}</span>
+			{/each}
 		</div>
 	</div>
 </section>

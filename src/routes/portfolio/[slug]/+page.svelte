@@ -1,61 +1,125 @@
 <script lang="ts">
+	import type { Component } from 'svelte';
+	import { loadProjectContent } from '$lib/content/localized';
+	import { locale } from '$lib/i18n';
+	import { messages } from '$lib/i18n/copy';
 	import { getSiteConfig } from '$lib/utils/content';
 
 	const config = getSiteConfig();
 
 	const { data } = $props();
-	const content = $derived(data.content);
-	const meta = $derived(data.meta);
-	$inspect(data);
+	const i18n = $derived(messages[$locale]);
+	let localizedContent = $state<Component | null>(null);
+	let localizedMeta = $state<Record<string, any> | null>(null);
+	let selectedImage = $state<{ src: string; alt: string } | null>(null);
+	let contentRoot = $state<HTMLDivElement | null>(null);
+	const RenderedContent = $derived((localizedContent ?? data.content) as Component);
+	const meta = $derived(localizedMeta ?? (data.meta as Record<string, any>));
+	const openImageLabel = $derived(
+		$locale === 'zh' ? '打开图片预览' : $locale === 'es' ? 'Abrir vista ampliada' : 'Open image preview'
+	);
+	const closePreviewLabel = $derived(
+		$locale === 'zh' ? '关闭图片预览' : $locale === 'es' ? 'Cerrar vista ampliada' : 'Close image preview'
+	);
+	const galleryTitle = $derived(
+		$locale === 'zh' ? '细节展示' : $locale === 'es' ? 'Capturas del proyecto' : 'Project screenshots'
+	);
+
+	function openImage(src: string, alt: string) {
+		selectedImage = { src, alt };
+	}
+
+	function closeImage() {
+		selectedImage = null;
+	}
+
+	function handleWindowKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape' && selectedImage) {
+			closeImage();
+		}
+	}
+
+	function handleContentClick(event: MouseEvent) {
+		const target = event.target;
+		if (!(target instanceof HTMLImageElement)) return;
+
+		openImage(target.currentSrc || target.src, target.alt || meta.title);
+	}
+
+	$effect(() => {
+		const activeLocale = $locale;
+		const slug = data.slug;
+		let cancelled = false;
+
+		if (!slug) return;
+
+		void loadProjectContent(slug, activeLocale)
+			.then((project) => {
+				if (!cancelled) {
+					localizedContent = project.default as Component;
+					localizedMeta = project.metadata;
+				}
+			})
+			.catch(() => {});
+
+		return () => {
+			cancelled = true;
+		};
+	});
+
+	$effect(() => {
+		if (!contentRoot) return;
+
+		const listener = (event: MouseEvent) => handleContentClick(event);
+		contentRoot.addEventListener('click', listener);
+
+		return () => {
+			contentRoot?.removeEventListener('click', listener);
+		};
+	});
 </script>
+
+<svelte:window onkeydown={handleWindowKeydown} />
 
 <svelte:head>
 	{#if meta}
 		<title>{meta.title} - {config.name}</title>
 		<meta name="description" content={meta.description} />
 	{:else}
-		<title>Project - {config.name}</title>
+		<title>{i18n.project.fallbackTitle} - {config.name}</title>
 	{/if}
 </svelte:head>
 
-{#if content}
-	<!-- Back Navigation -->
-	<section class="border-b-2 border-black py-6">
+{#if RenderedContent}
+	<section class="section-divider py-6">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<a
-				href="/portfolio"
-				class="hover:text-primary inline-flex items-center text-sm font-bold uppercase tracking-wide transition-colors"
-			>
-				← back to portfolio
+			<a href="/portfolio" class="eyebrow-link text-sm font-bold transition-colors hover:text-primary-dark">
+				{i18n.project.backLink}
 			</a>
 		</div>
 	</section>
 
-	<!-- Project Header -->
-	<section class="border-b-2 border-black py-12 md:py-20 lg:py-24">
+	<section class="section-divider py-12 md:py-20 lg:py-24">
 		<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-			<div class="max-w-4xl">
-				<h1 class="mb-2 text-2xl font-bold lowercase md:text-3xl lg:text-4xl">{meta.title}</h1>
-				<p class="mb-6 text-xl text-stone-800 md:text-2xl">case study</p>
-				<p class="mb-8 text-base leading-relaxed text-stone-800 md:text-lg">{meta.description}</p>
+			<div class="surface-panel max-w-4xl px-6 py-8 md:px-10 md:py-10">
+				<p class="eyebrow-link mb-3 text-xs">{i18n.project.heroEyebrow}</p>
+				<h1 class="page-title mb-3 text-4xl lowercase md:text-5xl lg:text-6xl">{meta.title}</h1>
+				<p class="muted-copy mb-8 text-base leading-relaxed md:text-xl">{meta.description}</p>
 
-				<!-- Project Meta -->
-				<div class="mb-8 flex flex-wrap gap-6">
+				<div class="mb-8 grid gap-6 md:grid-cols-[180px_1fr]">
 					<div>
-						<h3 class="mb-1 text-sm font-bold lowercase">date</h3>
-						<p class="text-sm text-stone-800 md:text-base">
+						<h3 class="mb-2 text-sm font-bold uppercase tracking-[0.16em] text-accent">{i18n.project.dateLabel}</h3>
+						<p class="muted-copy text-sm md:text-base">
 							{new Date(meta.date).toLocaleDateString()}
 						</p>
 					</div>
 
 					{#if meta.tags && meta.tags.length > 0}
 						<div>
-							<h3 class="mb-1 text-sm font-bold lowercase">tags</h3>
+							<h3 class="mb-2 text-sm font-bold uppercase tracking-[0.16em] text-accent">{i18n.project.tagsLabel}</h3>
 							<div class="flex flex-wrap gap-2">
 								{#each meta.tags as tag}
-									<span
-										class="rounded-md bg-stone-100 px-2 py-1 text-xs uppercase tracking-wide text-stone-800"
-									>
+									<span class="soft-tag px-3 py-1 text-xs uppercase tracking-wide">
 										{tag}
 									</span>
 								{/each}
@@ -64,93 +128,107 @@
 					{/if}
 				</div>
 
-				<!-- Project Links -->
 				<div class="flex flex-wrap gap-4">
 					{#if meta.link}
-						<a
-							href={meta.link}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="border-text-primary text-text-primary hover:bg-text-primary inline-flex items-center border-2 px-6 py-3 text-sm font-bold uppercase tracking-wide transition-colors duration-200 hover:text-white"
-						>
-							view live project
+						<a href={meta.link} target="_blank" rel="noopener noreferrer" class="btn-primary">
+							{i18n.project.liveProject}
 						</a>
 					{/if}
 					{#if meta.github}
-						<a
-							href={meta.github}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="inline-flex items-center border-2 border-gray-900 px-6 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 transition-colors duration-200 hover:bg-gray-900 hover:text-white"
-						>
-							view code
+						<a href={meta.github} target="_blank" rel="noopener noreferrer" class="btn-secondary">
+							{i18n.project.viewCode}
 						</a>
 					{/if}
 				</div>
 			</div>
-		</div>	
+		</div>
 	</section>
 
-	<!-- Hero Image -->
 	{#if meta.thumbnail}
-		<section class="border-b-2 border-black">
+		<section class="py-10 md:py-14">
 			<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-				<div class="aspect-[16/9] overflow-hidden bg-gray-100">
-					<img
-						src="/content/images/projects/{meta.thumbnail}"
-						alt={meta.title}
-						class="h-full w-full object-cover"
-					/>
+				<div class="surface-panel overflow-hidden p-3">
+					<button
+						type="button"
+						class="project-image-button aspect-[16/9] overflow-hidden rounded-[22px] bg-highlight"
+						aria-label={openImageLabel}
+						onclick={() => openImage(`/content/images/projects/${meta.thumbnail}`, meta.title)}
+					>
+						<img
+							src="/content/images/projects/{meta.thumbnail}"
+							alt={meta.title}
+							class="h-full w-full object-cover"
+						/>
+					</button>
 				</div>
 			</div>
 		</section>
 	{/if}
 
-	<!-- Project Content -->
-	<section class="py-12 md:py-20 lg:py-24">
+	<section class="py-6 md:py-10 lg:py-14">
 		<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-			<div class="prose prose-stone prose-lg max-w-none">
-				<data.content />
+			<div class="surface-panel px-6 py-8 md:px-10 md:py-10">
+				<div bind:this={contentRoot} class="prose prose-lg max-w-none">
+					<RenderedContent />
+				</div>
 			</div>
 		</div>
 	</section>
 
-	<!-- Additional Images -->
 	{#if meta.images && meta.images.length > 0}
-		<section class="bg-stone-50 py-12 md:py-20 lg:py-24">
+		<section class="py-6 md:py-10">
 			<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-				<h2 class="mb-8 text-center text-2xl font-bold lowercase md:text-3xl lg:text-4xl">
-					project gallery
-				</h2>
-				<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+				<h2 class="page-title mb-6 text-2xl lowercase md:text-3xl">{galleryTitle}</h2>
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{#each meta.images as image}
-						<div class="aspect-[4/3] overflow-hidden border-2 border-stone-200 bg-stone-100">
+						<button
+							type="button"
+							class="project-image-button surface-panel overflow-hidden p-2"
+							aria-label={openImageLabel}
+							onclick={() => openImage(`/content/images/projects/${image}`, meta.title)}
+						>
 							<img
 								src="/content/images/projects/{image}"
-								alt="{meta.title} detail"
-								class="h-full w-full object-cover"
-								loading="lazy"
+								alt={meta.title}
+								class="aspect-[4/3] h-full w-full rounded-[18px] object-cover"
 							/>
-						</div>
+						</button>
 					{/each}
 				</div>
 			</div>
 		</section>
 	{/if}
 
-	<!-- Next Project Navigation -->
-	<section class="border-t-2 border-black py-12 md:py-20 lg:py-24">
+	<section class="py-12 md:py-20 lg:py-24">
 		<div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-			<h2 class="mb-4 text-2xl font-bold lowercase md:text-3xl lg:text-4xl">want to see more?</h2>
-			<p class="mb-8 text-base leading-relaxed text-stone-800 md:text-lg">
-				check out my other projects
+			<p class="eyebrow-link mb-3 text-xs">{i18n.project.moreEyebrow}</p>
+			<h2 class="page-title mb-4 text-4xl lowercase md:text-5xl">{i18n.project.moreTitle}</h2>
+			<p class="muted-copy mb-8 text-base leading-relaxed md:text-lg">
+				{i18n.project.moreText}
 			</p>
-			<a
-				href="/portfolio"
-				class="bg-primary hover:bg-primary-dark inline-flex items-center px-6 py-3 text-sm font-bold uppercase tracking-wide text-stone-800 transition-colors duration-200"
-			>
-				view all projects
-			</a>
+			<a href="/portfolio" class="btn-primary">{i18n.project.moreCta}</a>
 		</div>
 	</section>
+
+	{#if selectedImage}
+		<div class="image-lightbox" role="dialog" aria-modal="true" aria-label={selectedImage.alt}>
+			<button
+				type="button"
+				class="image-lightbox-backdrop"
+				aria-label={closePreviewLabel}
+				onclick={closeImage}
+			></button>
+			<div class="image-lightbox-content">
+				<button
+					type="button"
+					class="image-lightbox-close"
+					aria-label={closePreviewLabel}
+					onclick={closeImage}
+				>
+					×
+				</button>
+				<img src={selectedImage.src} alt={selectedImage.alt} class="image-lightbox-media" />
+			</div>
+		</div>
+	{/if}
 {/if}

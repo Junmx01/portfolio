@@ -1,25 +1,16 @@
 export const siteConfig = {
-	// Personal Information
-	name: 'your name here',
-	tagline: 'what you do in a few words',
-	email: 'youremail@domain.com',
-	location: 'your city, country',
-
-	// Theme
-	primaryColor: 'yellow', // yellow, blue, red, green, purple, orange
-
-	// Social Links (optional)
-	social: {
-		github: 'username',
-		linkedin: 'username',
-		twitter: 'username',
-		instagram: 'username'
-	},
-
-	// SEO
-	siteUrl: 'https://yoursite.com',
-	description: 'brief description of yourself',
-
-	// Email Form
-	resendEmail: 'yourresendsenderemail@domain.com'
-};
+  name: "JUNJIE YE",
+  tagline: "HR automation, workflow systems, and business process improvement",
+  email: "junjie.ye@iqs.url.edu",
+  resendEmail: "onboarding@resend.dev",
+  location: "Barcelona, Spain",
+  primaryColor: "black",
+  social: {
+    github: "Junmx",
+    linkedin: "Junjie",
+    twitter: "",
+    instagram: ""
+  },
+  siteUrl: "以后你自己的网址，没有先随便留空或先写 GitHub Pages 地址",
+  description: "Portfolio showcasing HR automation, reporting systems, and business workflow projects"
+}	
