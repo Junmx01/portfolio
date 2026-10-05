@@ -2,7 +2,6 @@
 	import { interpolate, locale } from '$lib/i18n';
 	import { messages } from '$lib/i18n/copy';
 	import { getSiteConfig } from '$lib/utils/content';
-	import ContactForm from '$lib/components/ContactForm.svelte';
 
 	const config = getSiteConfig();
 	const i18n = $derived(messages[$locale]);
@@ -29,8 +28,8 @@
 </section>
 
 <section class="py-12 md:py-20 lg:py-24">
-	<div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-		<div class="grid grid-cols-1 gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+	<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+		<div class="grid max-w-3xl grid-cols-1 gap-8">
 			<div class="surface-panel px-6 py-8 md:px-8">
 				<p class="eyebrow-link mb-3 text-xs">{i18n.contact.panelEyebrow}</p>
 				<h2 class="page-title mb-6 text-4xl lowercase">{i18n.contact.panelTitle}</h2>
@@ -114,9 +113,6 @@
 				</div>
 			</div>
 
-			<div>
-				<ContactForm />
-			</div>
 		</div>
 	</div>
 </section>

@@ -82,7 +82,9 @@
 				>
 					{i18n.contact}
 				</a>
-				<a href="/resume/resume.pdf" download="resume.pdf" class="btn-secondary">{i18n.resume}</a>
+				{#if config.resumeUrl}
+					<a href={config.resumeUrl} download class="btn-secondary">{i18n.resume}</a>
+				{/if}
 			</div>
 
 			<!-- Mobile Menu Button -->
@@ -154,9 +156,11 @@
 						{i18n.contact}
 					</a>
 				</div>
-				<div>
-					<a href="/resume/resume.pdf" download="resume.pdf" class="btn-secondary">{i18n.resume}</a>
-				</div>
+				{#if config.resumeUrl}
+					<div>
+						<a href={config.resumeUrl} download class="btn-secondary">{i18n.resume}</a>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</nav>

@@ -28,7 +28,7 @@ export const messages = {
 		home: {
 			heroEyebrow: 'HR Automation · Internal Tooling · Process Engineering',
 			stats: [
-				{ value: '9', label: 'HR automation projects, built solo' },
+				{ value: '8 + 2', label: 'HR automation projects built solo (8 live, 2 in progress)' },
 				{ value: '100h+', label: 'saved per month in manual work' },
 				{ value: 'VBA · Python · API · SQL · Power BI', label: 'tools applied across projects', secondary: true }
 			],
@@ -177,7 +177,7 @@ export const messages = {
 		home: {
 			heroEyebrow: 'HR 自动化 · 内部工具 · 流程工程',
 			stats: [
-				{ value: '9', label: '个 HR 自动化项目，独立完成' },
+				{ value: '8 + 2', label: '个 HR 自动化项目，独立完成（8 个已上线，2 个进行中）' },
 				{ value: '100h+', label: '每月减少的重复劳动时间' },
 				{ value: 'VBA · Python · API · SQL · Power BI', label: '跨项目使用的工具栈', secondary: true }
 			],
@@ -320,7 +320,7 @@ export const messages = {
 		home: {
 			heroEyebrow: 'Automatizacion de RR. HH. · Herramientas internas · Ingenieria de procesos',
 			stats: [
-				{ value: '9', label: 'proyectos de automatizacion de RR. HH., construidos en solitario' },
+				{ value: '8 + 2', label: 'proyectos de automatizacion de RR. HH. construidos en solitario (8 en uso, 2 en curso)' },
 				{ value: '100h+', label: 'ahorradas al mes en trabajo manual' },
 				{ value: 'VBA · Python · API · SQL · Power BI', label: 'herramientas aplicadas en los proyectos', secondary: true }
 			],
